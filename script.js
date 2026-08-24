@@ -7,7 +7,8 @@
   var $=function(id){return document.getElementById(id)};
   var stage=$("stage"), nameOut=$("nameOut"), clockOut=$("clockOut"), groupsOut=$("groupsOut"),
       hint=$("stageHint"), mainBtn=$("mainBtn"), countEl=$("count"), setup=$("setup"),
-      settings=$("settings"), controls=$("controls"), ta=$("names");
+      settings=$("settings"), controls=$("controls"), ta=$("names"),
+      progress=$("progress"), progressFill=$("progressFill");
 
   /* ---------- storage ---------- */
   function load(){ try{var r=localStorage.getItem(KEY); if(r) Object.assign(S,JSON.parse(r));}catch(e){} }
@@ -74,33 +75,43 @@
       b.setAttribute("aria-current", b.dataset.view===S.view?"true":"false");
     });
 
-    if(!has){ show(null); return; }
+    if(!has){ show(null); progress.classList.add("hidden"); return; }
 
     if(S.view==="pick"){
       mainBtn.textContent="Pick a student";
       var left=remaining().length;
       countEl.textContent = S.elim ? "" : S.names.length+" in the class";
       if(S.elim) countEl.innerHTML="<b>"+left+"</b> of "+S.names.length+" still to go";
-      mainBtn.disabled = left===0;
+      mainBtn.disabled = false;
       if(nameOut.textContent) show(nameOut);
       else if(left===0){ show(hint); hint.innerHTML="Everyone has had a turn. <b>Start over</b> to go again."; }
       else { show(hint); hint.innerHTML="Press <b>Pick</b> — or tap the spacebar"; }
+      if(S.elim && S.names.length){
+        var pct=Math.round(left/S.names.length*100);
+        progress.classList.remove("hidden");
+        progressFill.style.width=pct+"%";
+        progress.setAttribute("aria-valuenow",pct);
+      } else progress.classList.add("hidden");
     }
     else if(S.view==="groups"){
       mainBtn.textContent="Make groups"; mainBtn.disabled=false; countEl.textContent=S.names.length+" students";
       if(groupsOut.children.length) show(groupsOut);
       else { show(hint); hint.innerHTML="Press <b>Make groups</b> to split the class"; }
+      progress.classList.add("hidden");
     }
     else {
       mainBtn.textContent = timer.on ? "Pause" : "Start timer";
       mainBtn.disabled=false; countEl.textContent="";
       show(clockOut); drawClock();
+      progress.classList.add("hidden");
     }
   }
 
   /* ---------- actions ---------- */
   function pick(){
-    var pool=remaining(); if(!pool.length) return;
+    var pool=remaining();
+    if(!pool.length){ S.used=[]; pool=remaining(); }
+    if(!pool.length) return;
     var n=pool[Math.floor(Math.random()*pool.length)];
     if(S.elim) S.used.push(n);
     nameOut.textContent=n; show(nameOut);
