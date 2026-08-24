@@ -1,7 +1,7 @@
 (function(){
   "use strict";
   var KEY="cp.v1";
-  var S={names:[],used:[],accent:"#6667AB",theme:"auto",groups:4,view:"pick"};
+  var S={names:[],used:[],accent:"#6667AB",theme:"auto",groups:4,timerLen:300,view:"pick"};
   var timer={left:300,on:false,id:null};
 
   var $=function(id){return document.getElementById(id)};
@@ -76,8 +76,9 @@
     });
     $("resetBtn").classList.toggle("hidden", S.view!=="pick");
     $("groupsField").classList.toggle("hidden", S.view!=="groups");
+    $("timerField").classList.toggle("hidden", S.view!=="timer");
 
-    if(!has){ show(null); progress.classList.add("hidden"); return; }
+    if(!has){ show(null); progress.classList.add("hidden"); paintTimerFill(); return; }
 
     if(S.view==="pick"){
       mainBtn.textContent="Pick a student";
@@ -93,16 +94,19 @@
         progressFill.style.width=pct+"%";
         progress.setAttribute("aria-valuenow",pct);
       } else progress.classList.add("hidden");
+      paintTimerFill();
     }
     else if(S.view==="groups"){
       mainBtn.textContent="Make groups"; mainBtn.disabled=false; countEl.textContent=S.names.length+" students";
       if(groupsOut.children.length) show(groupsOut);
       else { show(hint); hint.innerHTML="Press <b>Make groups</b> to split the class"; }
       progress.classList.add("hidden");
+      paintTimerFill();
     }
     else {
       mainBtn.textContent = timer.on ? "Pause" : "Start timer";
       mainBtn.disabled=false; countEl.textContent="";
+      $("timerMin").disabled = $("timerSec").disabled = timer.on;
       show(clockOut); drawClock();
       progress.classList.add("hidden");
     }
@@ -139,13 +143,22 @@
   }
   function drawClock(){
     var m=Math.floor(timer.left/60), s=timer.left%60;
-    clockOut.textContent=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+    var str=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+    clockOut.innerHTML=str.split("").map(function(ch){
+      return ch===":" ? '<span class="clock-colon">:</span>' : '<span class="clock-digit">'+ch+'</span>';
+    }).join("");
     clockOut.classList.toggle("done", timer.left===0);
+    paintTimerFill();
+  }
+  function paintTimerFill(){
+    if(S.view!=="timer"){ stage.style.background=""; return; }
+    var pct=S.timerLen>0 ? Math.min(100,Math.max(0,(S.timerLen-timer.left)/S.timerLen*100)) : 0;
+    stage.style.background="conic-gradient(var(--accent) "+pct+"%, var(--surface) "+pct+"%)";
   }
   function toggleTimer(){
     if(timer.on){ clearInterval(timer.id); timer.on=false; }
     else {
-      if(timer.left<=0) timer.left=300;
+      if(timer.left<=0) timer.left=S.timerLen;
       timer.on=true;
       timer.id=setInterval(function(){
         timer.left--; if(timer.left<=0){ timer.left=0; clearInterval(timer.id); timer.on=false; render(); }
@@ -203,6 +216,15 @@
     S.theme=b.dataset.t; save(); applyTheme();
   };
   $("gCount").oninput=function(){ S.groups=parseInt(this.value,10)||4; save(); };
+  function applyTimerLen(){
+    var m=Math.max(0,parseInt($("timerMin").value,10)||0), s=Math.max(0,Math.min(59,parseInt($("timerSec").value,10)||0));
+    S.timerLen=Math.max(1,m*60+s);
+    if(!timer.on){ timer.left=S.timerLen; }
+    drawClock();
+    save();
+  }
+  $("timerMin").oninput=applyTimerLen;
+  $("timerSec").oninput=applyTimerLen;
   stage.onclick=function(){ if(S.names.length && S.view==="pick") pick(); };
 
   document.addEventListener("keydown",function(e){
@@ -218,6 +240,9 @@
   /* ---------- boot ---------- */
   load();
   $("gCount").value=S.groups;
+  timer.left=S.timerLen;
+  $("timerMin").value=Math.floor(S.timerLen/60);
+  $("timerSec").value=S.timerLen%60;
   applyTheme();
   render();
 })();

@@ -46,6 +46,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 .iconbtn{font-family:var(--fd); font-size:14px; font-weight:500; padding:9px 14px;
   background:var(--surface); border:1px solid var(--rule); border-radius:10px; cursor:pointer}
 .iconbtn:hover{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
+.iconbtn-icon{padding:9px; display:inline-flex; align-items:center; justify-content:center}
 
 /* ---------- stage ---------- */
 .stage{
@@ -127,6 +128,8 @@ input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--rule);
 .clock{font-family:var(--fd);font-weight:700;font-variant-numeric:tabular-nums;
        font-size:clamp(56px,17vw,190px);letter-spacing:-.04em;line-height:1}
 .clock.done{color:var(--accent-text)}
+.clock-digit{display:inline-block;width:1ch;text-align:center}
+.clock-colon{display:inline-block}
 
 /* ad slot — hidden in present mode */
 .ad{border:1px dashed var(--rule-2); border-radius:14px; padding:18px; text-align:center;
