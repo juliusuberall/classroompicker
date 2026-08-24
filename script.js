@@ -82,9 +82,9 @@
       countEl.textContent = S.elim ? "" : S.names.length+" in the class";
       if(S.elim) countEl.innerHTML="<b>"+left+"</b> of "+S.names.length+" still to go";
       mainBtn.disabled = left===0;
-      if(left===0){ show(hint); hint.innerHTML="Everyone has had a turn. <b>Start over</b> to go again."; }
-      else if(!nameOut.textContent){ show(hint); hint.innerHTML="Press <b>Pick</b> — or tap the spacebar"; }
-      else show(nameOut);
+      if(nameOut.textContent) show(nameOut);
+      else if(left===0){ show(hint); hint.innerHTML="Everyone has had a turn. <b>Start over</b> to go again."; }
+      else { show(hint); hint.innerHTML="Press <b>Pick</b> — or tap the spacebar"; }
     }
     else if(S.view==="groups"){
       mainBtn.textContent="Make groups"; mainBtn.disabled=false; countEl.textContent=S.names.length+" students";
