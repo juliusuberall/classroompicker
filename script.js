@@ -43,6 +43,8 @@
     [].forEach.call(document.querySelectorAll(".sw"),function(b){
       b.setAttribute("aria-pressed", b.dataset.c.toLowerCase()===a.toLowerCase()?"true":"false");
     });
+    var svg="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='"+a+"'/></svg>";
+    $("favicon").setAttribute("href","data:image/svg+xml,"+encodeURIComponent(svg));
   }
   function applyTheme(){
     if(S.theme==="auto") document.documentElement.removeAttribute("data-theme");
@@ -66,6 +68,7 @@
                      if(el) el.classList.remove("hidden"); }
   function render(){
     var has=S.names.length>0;
+    document.body.classList.toggle("setup-view", !has);
     setup.classList.toggle("hidden", has);
     controls.classList.toggle("hidden", !has);
     stage.classList.toggle("hidden", !has);
@@ -175,11 +178,50 @@
     if(!on && document.fullscreenElement && document.exitFullscreen) document.exitFullscreen().catch(function(){});
   }
 
+  /* ---------- setup <-> edit-button morph ---------- */
+  function reduceMotion(){ return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  function pop(el){ el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+  function ghostShell(){
+    var d=document.createElement("div");
+    d.className="panel";
+    return d;
+  }
+  function flyGhost(clone, from, to, cb){
+    clone.style.position="fixed"; clone.style.margin="0"; clone.style.zIndex="80";
+    clone.style.pointerEvents="none"; clone.style.transformOrigin="top left";
+    clone.style.boxSizing="border-box"; clone.style.overflow="hidden"; clone.style.transition="none";
+    clone.style.left=from.left+"px"; clone.style.top=from.top+"px";
+    clone.style.width=from.width+"px"; clone.style.height=from.height+"px";
+    clone.style.opacity="1";
+    document.body.appendChild(clone);
+    var done=false;
+    function finish(){ if(done) return; done=true; clone.remove(); cb(); }
+    if(reduceMotion()){ finish(); return; }
+    void clone.offsetWidth;
+    requestAnimationFrame(function(){
+      var sx=to.width/from.width, sy=to.height/from.height;
+      var dx=to.left-from.left, dy=to.top-from.top;
+      clone.style.transition="transform .38s cubic-bezier(.22,.8,.25,1), opacity .32s ease";
+      clone.style.transform="translate("+dx+"px,"+dy+"px) scale("+sx+","+sy+")";
+      clone.style.opacity="0";
+    });
+    clone.addEventListener("transitionend", finish, {once:true});
+    setTimeout(finish, 550);
+  }
+
   /* ---------- events ---------- */
   $("saveBtn").onclick=function(){
     var list=parse(ta.value);
     if(!list.length){ ta.focus(); return; }
+    var r1=setup.getBoundingClientRect();
+    var clone=ghostShell();
     S.names=list; S.used=[]; nameOut.textContent=""; save(); render();
+    [stage, controls, progress].forEach(function(el){
+      el.classList.remove("reveal"); void el.offsetWidth; el.classList.add("reveal");
+    });
+    var editBtnEl=$("editBtn");
+    var r2=editBtnEl.getBoundingClientRect();
+    flyGhost(clone, r1, r2, function(){ pop(editBtnEl); });
   };
   $("demoBtn").onclick=function(){
     ta.value=["Amara Okafor","Ben Whitfield","Chloe Nguyen","Dev Patel","Elif Demir","Finn O'Leary",

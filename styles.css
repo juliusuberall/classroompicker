@@ -33,6 +33,7 @@ button,input,textarea,select{font:inherit;color:inherit}
 
 .wrap{max-width:1180px; margin:0 auto; padding:20px 20px 40px;
       display:flex; flex-direction:column; gap:20px; min-height:100vh}
+body.setup-view #setup{margin-top:auto; margin-bottom:auto}
 
 /* ---------- header ---------- */
 .top{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
@@ -42,11 +43,15 @@ button,input,textarea,select{font:inherit;color:inherit}
 .nav{display:flex; gap:3px; background:var(--surface-2); padding:3px; border-radius:11px}
 .nav button{font-family:var(--fd); font-weight:500; font-size:14px; padding:8px 15px;
   border:0; background:transparent; border-radius:8px; cursor:pointer; color:var(--ink-2)}
-.nav button[aria-current="true"]{background:var(--surface); color:var(--ink); box-shadow:var(--shadow)}
+.nav button[aria-current="true"]{background:var(--surface); color:var(--ink);
+  box-shadow:0 0 0 2px var(--accent), var(--shadow)}
 .iconbtn{font-family:var(--fd); font-size:14px; font-weight:500; padding:9px 14px;
   background:var(--surface); border:1px solid var(--rule); border-radius:10px; cursor:pointer}
 .iconbtn:hover{border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-soft)}
 .iconbtn-icon{padding:9px; display:inline-flex; align-items:center; justify-content:center}
+.pop{animation:pop .3s cubic-bezier(.2,.9,.3,1)}
+.reveal{animation:reveal .38s cubic-bezier(.22,.8,.25,1) both}
+@keyframes reveal{from{opacity:0; transform:translateY(8px)} to{opacity:1; transform:none}}
 
 /* ---------- stage ---------- */
 .stage{
