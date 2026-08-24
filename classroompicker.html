@@ -21,6 +21,7 @@
       <button type="button" data-view="groups">Groups</button>
       <button type="button" data-view="timer">Timer</button>
     </nav>
+    <button class="iconbtn" id="editBtn" type="button">Edit class</button>
     <button class="iconbtn" id="presentBtn" type="button">Present</button>
     <button class="iconbtn" id="setBtn" type="button" aria-expanded="false">Settings</button>
   </header>
@@ -60,7 +61,11 @@
     <span class="kbd">space</span>
     <span class="spacer">
       <button class="iconbtn" id="resetBtn" type="button">Start over</button>
-      <button class="iconbtn" id="editBtn" type="button">Edit class</button>
+      <span class="row hidden" id="groupsField">
+        <label class="count" for="gCount">Groups</label>
+        <input type="number" id="gCount" min="2" max="12" value="4"
+               style="width:64px;padding:8px 10px;border:1px solid var(--rule);border-radius:9px;background:var(--surface-2)">
+      </span>
     </span>
   </div>
 
@@ -84,21 +89,6 @@
         <button type="button" data-t="auto" aria-pressed="true">Auto</button>
         <button type="button" data-t="light" aria-pressed="false">Light</button>
         <button type="button" data-t="dark" aria-pressed="false">Dark</button>
-      </div>
-    </div>
-    <div class="setrow">
-      <span>Everyone gets a turn</span>
-      <div class="seg" id="elimSeg">
-        <button type="button" data-e="1" aria-pressed="true">On</button>
-        <button type="button" data-e="0" aria-pressed="false">Off</button>
-      </div>
-    </div>
-    <div class="setrow">
-      <span>Groups</span>
-      <div class="row">
-        <label class="count" for="gCount">How many</label>
-        <input type="number" id="gCount" min="2" max="12" value="4"
-               style="width:74px;padding:8px 10px;border:1px solid var(--rule);border-radius:9px;background:var(--surface-2)">
       </div>
     </div>
   </section>

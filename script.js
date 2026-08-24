@@ -1,7 +1,7 @@
 (function(){
   "use strict";
   var KEY="cp.v1";
-  var S={names:[],used:[],accent:"#6667AB",theme:"auto",elim:true,groups:4,view:"pick"};
+  var S={names:[],used:[],accent:"#6667AB",theme:"auto",groups:4,view:"pick"};
   var timer={left:300,on:false,id:null};
 
   var $=function(id){return document.getElementById(id)};
@@ -58,7 +58,6 @@
     return txt.split(/[\n\r\t,;]+/).map(function(s){return s.trim()}).filter(Boolean);
   }
   function remaining(){
-    if(!S.elim) return S.names.slice();
     return S.names.filter(function(n){return S.used.indexOf(n)<0});
   }
 
@@ -70,23 +69,25 @@
     setup.classList.toggle("hidden", has);
     controls.classList.toggle("hidden", !has);
     stage.classList.toggle("hidden", !has);
+    $("editBtn").classList.toggle("hidden", !has);
 
     [].forEach.call($("nav").children,function(b){
       b.setAttribute("aria-current", b.dataset.view===S.view?"true":"false");
     });
+    $("resetBtn").classList.toggle("hidden", S.view!=="pick");
+    $("groupsField").classList.toggle("hidden", S.view!=="groups");
 
     if(!has){ show(null); progress.classList.add("hidden"); return; }
 
     if(S.view==="pick"){
       mainBtn.textContent="Pick a student";
       var left=remaining().length;
-      countEl.textContent = S.elim ? "" : S.names.length+" in the class";
-      if(S.elim) countEl.innerHTML="<b>"+left+"</b> of "+S.names.length+" still to go";
+      countEl.innerHTML="<b>"+left+"</b> of "+S.names.length+" still to go";
       mainBtn.disabled = false;
       if(nameOut.textContent) show(nameOut);
       else if(left===0){ show(hint); hint.innerHTML="Everyone has had a turn. <b>Start over</b> to go again."; }
       else { show(hint); hint.innerHTML="Press <b>Pick</b> — or tap the spacebar"; }
-      if(S.elim && S.names.length){
+      if(S.names.length){
         var pct=Math.round(left/S.names.length*100);
         progress.classList.remove("hidden");
         progressFill.style.width=pct+"%";
@@ -113,7 +114,7 @@
     if(!pool.length){ S.used=[]; pool=remaining(); }
     if(!pool.length) return;
     var n=pool[Math.floor(Math.random()*pool.length)];
-    if(S.elim) S.used.push(n);
+    S.used.push(n);
     nameOut.textContent=n; show(nameOut);
     nameOut.classList.remove("hit"); void nameOut.offsetWidth; nameOut.classList.add("hit");
     stage.classList.add("lit"); setTimeout(function(){stage.classList.remove("lit")},420);
@@ -201,14 +202,6 @@
     var b=e.target.closest("button[data-t]"); if(!b) return;
     S.theme=b.dataset.t; save(); applyTheme();
   };
-  $("elimSeg").onclick=function(e){
-    var b=e.target.closest("button[data-e]"); if(!b) return;
-    S.elim = b.dataset.e==="1";
-    [].forEach.call($("elimSeg").children,function(x){
-      x.setAttribute("aria-pressed", String(x.dataset.e===b.dataset.e));
-    });
-    save(); render();
-  };
   $("gCount").oninput=function(){ S.groups=parseInt(this.value,10)||4; save(); };
   stage.onclick=function(){ if(S.names.length && S.view==="pick") pick(); };
 
@@ -224,9 +217,6 @@
 
   /* ---------- boot ---------- */
   load();
-  [].forEach.call($("elimSeg").children,function(x){
-    x.setAttribute("aria-pressed", String((x.dataset.e==="1")===S.elim));
-  });
   $("gCount").value=S.groups;
   applyTheme();
   render();
