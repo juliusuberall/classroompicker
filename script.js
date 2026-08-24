@@ -84,7 +84,7 @@
     if(!has){ show(null); progress.classList.add("hidden"); paintTimerFill(); return; }
 
     if(S.view==="pick"){
-      mainBtn.textContent="Pick a student";
+      mainBtn.textContent="Pick someone";
       var left=remaining().length;
       countEl.innerHTML="<b>"+left+"</b> of "+S.names.length+" still to go";
       mainBtn.disabled = false;
