@@ -281,6 +281,7 @@
 
   /* ---------- boot ---------- */
   load();
+  S.view="pick";
   $("gCount").value=S.groups;
   timer.left=S.timerLen;
   $("timerMin").value=Math.floor(S.timerLen/60);
