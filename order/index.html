@@ -6,25 +6,25 @@
 <!-- The app shell below is shared byte-for-byte with /, /groups/, /timer/ and /order/.
      Only <head> metadata, the active nav link and the ABOUT section differ per route.
      Change the shell in all four files together. -->
-<title>Random Student Picker – Free, No Sign-Up | Classroom Picker</title>
-<meta name="description" content="Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.">
-<link rel="canonical" href="https://classroompicker.com/">
+<title>Random Order Generator for Students | Classroom Picker</title>
+<meta name="description" content="Shuffle your class into a random speaking or presentation order in one click. Uses your saved class list. Free, no account, projector-ready.">
+<link rel="canonical" href="https://classroompicker.com/order/">
 <meta name="theme-color" content="#6667AB">
 
 <!-- Social previews -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Classroom Picker">
 <meta property="og:locale" content="en_US">
-<meta property="og:url" content="https://classroompicker.com/">
-<meta property="og:title" content="Random Student Picker – Free, No Sign-Up | Classroom Picker">
-<meta property="og:description" content="Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.">
+<meta property="og:url" content="https://classroompicker.com/order/">
+<meta property="og:title" content="Random Order Generator for Students | Classroom Picker">
+<meta property="og:description" content="Shuffle your class into a random speaking or presentation order in one click. Uses your saved class list. Free, no account, projector-ready.">
 <meta property="og:image" content="https://classroompicker.com/assets/img/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Classroom Picker showing a student's name in large type">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Random Student Picker – Free, No Sign-Up | Classroom Picker">
-<meta name="twitter:description" content="Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.">
+<meta name="twitter:title" content="Random Order Generator for Students | Classroom Picker">
+<meta name="twitter:description" content="Shuffle your class into a random speaking or presentation order in one click. Uses your saved class list. Free, no account, projector-ready.">
 <meta name="twitter:image" content="https://classroompicker.com/assets/img/og-image.png">
 
 <!-- Icons and manifest -->
@@ -45,10 +45,10 @@
   "@graph": [
     {
       "@type": "WebApplication",
-      "@id": "https://classroompicker.com/#app",
-      "name": "Random Student Picker – Classroom Picker",
-      "url": "https://classroompicker.com/",
-      "description": "Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.",
+      "@id": "https://classroompicker.com/order/#app",
+      "name": "Random Order Generator – Classroom Picker",
+      "url": "https://classroompicker.com/order/",
+      "description": "Shuffle your class into a random speaking or presentation order in one click. Uses your saved class list. Free, no account, projector-ready.",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
@@ -71,38 +71,30 @@
     },
     {
       "@type": "FAQPage",
-      "@id": "https://classroompicker.com/#faq",
+      "@id": "https://classroompicker.com/order/#faq",
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Is the random student picker really free?",
+          "name": "What is the difference between the order generator and the student picker?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. There is no account, no paywall and nothing to install. The whole tool is a single web page that works on any laptop, Chromebook or interactive whiteboard."
+            "text": "The picker reveals one name at a time and keeps the rest hidden, which is good for questions. The order generator shows the whole sequence up front, which is better for presentations where students want to know when their turn is."
           }
         },
         {
           "@type": "Question",
-          "name": "Does it avoid picking the same student twice?",
+          "name": "Is the shuffle truly random?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Every student is picked once before the list resets, and the bar under the stage shows how many are still to go. Press Start over or R to begin a new round."
+            "text": "Yes. It uses a Fisher-Yates shuffle, the standard algorithm for an unbiased random permutation, so every possible order is equally likely."
           }
         },
         {
           "@type": "Question",
-          "name": "Where is my class list stored?",
+          "name": "Can I save the generated order?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "In your browser's local storage on this device only. Nothing is uploaded, so there is no server holding pupil names. Clearing your browser data removes the list."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I use it as a random name generator for anything else?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Of course. Any list of names works: raffles, chore rotas, choosing who reads next, or picking a team captain. It is a general randomiser that happens to be tuned for teachers."
+            "text": "The order stays on screen until you shuffle again or leave the page. To keep it, take a screenshot or copy the names into your notes."
           }
         }
       ]
@@ -111,17 +103,17 @@
 }
 </script>
 </head>
-<body data-view="pick">
+<body data-view="order">
 <div class="wrap">
   <button class="iconbtn exit" id="exitBtn" type="button">Exit ✕</button>
 
   <header class="top">
     <a class="brand" href="/"><span class="dot"></span>Classroom Picker</a>
     <nav class="nav" aria-label="Tools">
-      <a href="/" aria-current="page">Pick</a>
+      <a href="/">Pick</a>
       <a href="/groups/">Groups</a>
       <a href="/timer/">Timer</a>
-      <a href="/order/">Order</a>
+      <a href="/order/" aria-current="page">Order</a>
     </nav>
     <button class="iconbtn" id="editBtn" type="button">Edit class</button>
     <button class="iconbtn" id="presentBtn" type="button">Presenter mode</button>
@@ -213,36 +205,34 @@
   <!-- ABOUT: crawlable text for search engines and first-time visitors. Hidden in presenter mode. -->
   <section class="about" id="about">
     <div class="about-col">
-      <h1>Random Student Picker</h1>
-      <p>Classroom Picker is a free random name picker built for the classroom projector. Paste your class list once and it is saved on this device, so tomorrow it is already there. Press the spacebar and a name appears in letters big enough to read from the back row. Every student is picked once before anyone is picked again, so the class can see it is fair.</p>
+      <h1>Random Order Generator</h1>
+      <p>Put the whole class into a random order for presentations, show-and-tell, reading aloud or turns at the board. One press shuffles your saved class list into a numbered sequence that everyone can see at once, so there is no arguing about who goes next and no need to pick names one by one.</p>
       <h2>How to use it</h2>
       <ol>
-        <li>Paste your class list, one name per line or straight from a spreadsheet, and press <b>Save class</b>.</li>
-        <li>Press <b>Pick someone</b> or tap the spacebar. The chosen name fills the screen.</li>
-        <li>Press <b>F</b> for presenter mode, a full-screen view with nothing but the name. Press <b>Esc</b> to leave it.</li>
+        <li>Save your class list once. It is shared with every tool on this site.</li>
+        <li>Press <b>Shuffle order</b> or the spacebar. The class appears as a numbered list.</li>
+        <li>Press again for a different order, or <b>F</b> to show it full screen while students present.</li>
       </ol>
       <h2>Other classroom tools</h2>
       <ul class="tools">
+        <li><a href="/">Random student picker</a> – Pick one name at a time, no repeats until everyone has had a turn.</li>
         <li><a href="/groups/">Random group generator</a> – Split the class into 2 to 12 even teams.</li>
         <li><a href="/timer/">Classroom timer</a> – Full-screen countdown for the board.</li>
-        <li><a href="/order/">Random order generator</a> – Shuffle the class into a numbered speaking order.</li>
       </ul>
     </div>
     <div class="about-col">
       <h2>Frequently asked questions</h2>
-      <h3>Is the random student picker really free?</h3>
-      <p>Yes. There is no account, no paywall and nothing to install. The whole tool is a single web page that works on any laptop, Chromebook or interactive whiteboard.</p>
-      <h3>Does it avoid picking the same student twice?</h3>
-      <p>Yes. Every student is picked once before the list resets, and the bar under the stage shows how many are still to go. Press <b>Start over</b> or <b>R</b> to begin a new round.</p>
-      <h3>Where is my class list stored?</h3>
-      <p>In your browser's local storage on this device only. Nothing is uploaded, so there is no server holding pupil names. Clearing your browser data removes the list.</p>
-      <h3>Can I use it as a random name generator for anything else?</h3>
-      <p>Of course. Any list of names works: raffles, chore rotas, choosing who reads next, or picking a team captain. It is a general randomiser that happens to be tuned for teachers.</p>
+      <h3>What is the difference between the order generator and the student picker?</h3>
+      <p>The picker reveals one name at a time and keeps the rest hidden, which is good for questions. The order generator shows the whole sequence up front, which is better for presentations where students want to know when their turn is.</p>
+      <h3>Is the shuffle truly random?</h3>
+      <p>Yes. It uses a Fisher-Yates shuffle, the standard algorithm for an unbiased random permutation, so every possible order is equally likely.</p>
+      <h3>Can I save the generated order?</h3>
+      <p>The order stays on screen until you shuffle again or leave the page. To keep it, take a screenshot or copy the names into your notes.</p>
       <h2>Embed or link to this tool</h2>
       <p>Paste this into your class blog, school website or learning platform to embed the tool:</p>
-      <pre><code>&lt;iframe src="https://classroompicker.com/" width="100%" height="640" style="border:0" loading="lazy" title="Random Student Picker – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
+      <pre><code>&lt;iframe src="https://classroompicker.com/order/" width="100%" height="640" style="border:0" loading="lazy" title="Random Order Generator – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
       <p>Or link to it with:</p>
-      <pre><code>&lt;a href="https://classroompicker.com/"&gt;Random Student Picker by Classroom Picker&lt;/a&gt;</code></pre>
+      <pre><code>&lt;a href="https://classroompicker.com/order/"&gt;Random Order Generator by Classroom Picker&lt;/a&gt;</code></pre>
     </div>
   </section>
 
