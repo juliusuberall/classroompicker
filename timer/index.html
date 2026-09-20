@@ -6,25 +6,25 @@
 <!-- The app shell below is shared byte-for-byte with /, /groups/, /timer/ and /order/.
      Only <head> metadata, the active nav link and the ABOUT section differ per route.
      Change the shell in all four files together. -->
-<title>Random Student Picker – Free, No Sign-Up | Classroom Picker</title>
-<meta name="description" content="Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.">
-<link rel="canonical" href="https://classroompicker.com/">
+<title>Classroom Timer – Full-Screen Countdown | Classroom Picker</title>
+<meta name="description" content="A big, clear classroom countdown timer for the projector. Set minutes and seconds, press space to start or pause. Free, no account, no ads on screen.">
+<link rel="canonical" href="https://classroompicker.com/timer/">
 <meta name="theme-color" content="#6667AB">
 
 <!-- Social previews -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Classroom Picker">
 <meta property="og:locale" content="en_US">
-<meta property="og:url" content="https://classroompicker.com/">
-<meta property="og:title" content="Random Student Picker – Free, No Sign-Up | Classroom Picker">
-<meta property="og:description" content="Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.">
+<meta property="og:url" content="https://classroompicker.com/timer/">
+<meta property="og:title" content="Classroom Timer – Full-Screen Countdown | Classroom Picker">
+<meta property="og:description" content="A big, clear classroom countdown timer for the projector. Set minutes and seconds, press space to start or pause. Free, no account, no ads on screen.">
 <meta property="og:image" content="https://classroompicker.com/assets/img/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Classroom Picker showing a student's name in large type">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Random Student Picker – Free, No Sign-Up | Classroom Picker">
-<meta name="twitter:description" content="Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.">
+<meta name="twitter:title" content="Classroom Timer – Full-Screen Countdown | Classroom Picker">
+<meta name="twitter:description" content="A big, clear classroom countdown timer for the projector. Set minutes and seconds, press space to start or pause. Free, no account, no ads on screen.">
 <meta name="twitter:image" content="https://classroompicker.com/assets/img/og-image.png">
 
 <!-- Icons and manifest -->
@@ -45,10 +45,10 @@
   "@graph": [
     {
       "@type": "WebApplication",
-      "@id": "https://classroompicker.com/#app",
-      "name": "Random Student Picker – Classroom Picker",
-      "url": "https://classroompicker.com/",
-      "description": "Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.",
+      "@id": "https://classroompicker.com/timer/#app",
+      "name": "Classroom Timer – Classroom Picker",
+      "url": "https://classroompicker.com/timer/",
+      "description": "A big, clear classroom countdown timer for the projector. Set minutes and seconds, press space to start or pause. Free, no account, no ads on screen.",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
@@ -71,38 +71,30 @@
     },
     {
       "@type": "FAQPage",
-      "@id": "https://classroompicker.com/#faq",
+      "@id": "https://classroompicker.com/timer/#faq",
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "Is the random student picker really free?",
+          "name": "Does the classroom timer make a sound when it ends?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. There is no account, no paywall and nothing to install. The whole tool is a single web page that works on any laptop, Chromebook or interactive whiteboard."
+            "text": "No. It changes colour and stays at 00:00 so the class can see time is up without a buzzer startling anyone. Silent by design for calm transitions."
           }
         },
         {
           "@type": "Question",
-          "name": "Does it avoid picking the same student twice?",
+          "name": "Can I run the timer and pick students in the same lesson?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Every student is picked once before the list resets, and the bar under the stage shows how many are still to go. Press Start over or R to begin a new round."
+            "text": "Yes. The picker, group generator and timer share one class list and sit one click apart in the navigation. Your settings are kept between visits."
           }
         },
         {
           "@type": "Question",
-          "name": "Where is my class list stored?",
+          "name": "Does it work offline or on a school network?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "In your browser's local storage on this device only. Nothing is uploaded, so there is no server holding pupil names. Clearing your browser data removes the list."
-          }
-        },
-        {
-          "@type": "Question",
-          "name": "Can I use it as a random name generator for anything else?",
-          "acceptedAnswer": {
-            "@type": "Answer",
-            "text": "Of course. Any list of names works: raffles, chore rotas, choosing who reads next, or picking a team captain. It is a general randomiser that happens to be tuned for teachers."
+            "text": "The page is small, static and has no third-party scripts, so it loads in well under a second even on filtered or slow networks. Once loaded, the timer runs without any connection."
           }
         }
       ]
@@ -111,16 +103,16 @@
 }
 </script>
 </head>
-<body data-view="pick">
+<body data-view="timer">
 <div class="wrap">
   <button class="iconbtn exit" id="exitBtn" type="button">Exit ✕</button>
 
   <header class="top">
     <a class="brand" href="/"><span class="dot"></span>Classroom Picker</a>
     <nav class="nav" aria-label="Tools">
-      <a href="/" aria-current="page">Pick</a>
+      <a href="/">Pick</a>
       <a href="/groups/">Groups</a>
-      <a href="/timer/">Timer</a>
+      <a href="/timer/" aria-current="page">Timer</a>
       <a href="/order/">Order</a>
     </nav>
     <button class="iconbtn" id="editBtn" type="button">Edit class</button>
@@ -213,36 +205,34 @@
   <!-- ABOUT: crawlable text for search engines and first-time visitors. Hidden in presenter mode. -->
   <section class="about" id="about">
     <div class="about-col">
-      <h1>Random Student Picker</h1>
-      <p>Classroom Picker is a free random name picker built for the classroom projector. Paste your class list once and it is saved on this device, so tomorrow it is already there. Press the spacebar and a name appears in letters big enough to read from the back row. Every student is picked once before anyone is picked again, so the class can see it is fair.</p>
+      <h1>Classroom Timer</h1>
+      <p>A countdown timer designed to be read from across the room. Set the minutes and seconds, press start, and the digits fill the screen while a ring quietly shows how much time has passed. Use it for silent reading, transitions, group tasks or tests. Press once to pause, press again to resume, all from the keyboard or a presentation clicker.</p>
       <h2>How to use it</h2>
       <ol>
-        <li>Paste your class list, one name per line or straight from a spreadsheet, and press <b>Save class</b>.</li>
-        <li>Press <b>Pick someone</b> or tap the spacebar. The chosen name fills the screen.</li>
-        <li>Press <b>F</b> for presenter mode, a full-screen view with nothing but the name. Press <b>Esc</b> to leave it.</li>
+        <li>Type the minutes and seconds you want. The timer remembers your last setting.</li>
+        <li>Press <b>Start timer</b> or the spacebar. Press again to pause.</li>
+        <li>Press <b>F</b> for a full-screen countdown with nothing else on the board.</li>
       </ol>
       <h2>Other classroom tools</h2>
       <ul class="tools">
+        <li><a href="/">Random student picker</a> – Pick one name at a time, no repeats until everyone has had a turn.</li>
         <li><a href="/groups/">Random group generator</a> – Split the class into 2 to 12 even teams.</li>
-        <li><a href="/timer/">Classroom timer</a> – Full-screen countdown for the board.</li>
         <li><a href="/order/">Random order generator</a> – Shuffle the class into a numbered speaking order.</li>
       </ul>
     </div>
     <div class="about-col">
       <h2>Frequently asked questions</h2>
-      <h3>Is the random student picker really free?</h3>
-      <p>Yes. There is no account, no paywall and nothing to install. The whole tool is a single web page that works on any laptop, Chromebook or interactive whiteboard.</p>
-      <h3>Does it avoid picking the same student twice?</h3>
-      <p>Yes. Every student is picked once before the list resets, and the bar under the stage shows how many are still to go. Press <b>Start over</b> or <b>R</b> to begin a new round.</p>
-      <h3>Where is my class list stored?</h3>
-      <p>In your browser's local storage on this device only. Nothing is uploaded, so there is no server holding pupil names. Clearing your browser data removes the list.</p>
-      <h3>Can I use it as a random name generator for anything else?</h3>
-      <p>Of course. Any list of names works: raffles, chore rotas, choosing who reads next, or picking a team captain. It is a general randomiser that happens to be tuned for teachers.</p>
+      <h3>Does the classroom timer make a sound when it ends?</h3>
+      <p>No. It changes colour and stays at 00:00 so the class can see time is up without a buzzer startling anyone. Silent by design for calm transitions.</p>
+      <h3>Can I run the timer and pick students in the same lesson?</h3>
+      <p>Yes. The picker, group generator and timer share one class list and sit one click apart in the navigation. Your settings are kept between visits.</p>
+      <h3>Does it work offline or on a school network?</h3>
+      <p>The page is small, static and has no third-party scripts, so it loads in well under a second even on filtered or slow networks. Once loaded, the timer runs without any connection.</p>
       <h2>Embed or link to this tool</h2>
       <p>Paste this into your class blog, school website or learning platform to embed the tool:</p>
-      <pre><code>&lt;iframe src="https://classroompicker.com/" width="100%" height="640" style="border:0" loading="lazy" title="Random Student Picker – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
+      <pre><code>&lt;iframe src="https://classroompicker.com/timer/" width="100%" height="640" style="border:0" loading="lazy" title="Classroom Timer – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
       <p>Or link to it with:</p>
-      <pre><code>&lt;a href="https://classroompicker.com/"&gt;Random Student Picker by Classroom Picker&lt;/a&gt;</code></pre>
+      <pre><code>&lt;a href="https://classroompicker.com/timer/"&gt;Classroom Timer by Classroom Picker&lt;/a&gt;</code></pre>
     </div>
   </section>
 

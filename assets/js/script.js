@@ -1,38 +1,50 @@
 (function(){
   "use strict";
   var KEY="cp.v1";
+  /* Persisted state. `view` is NOT restored from storage: each tool lives on its own
+     route (/, /groups/, /timer/, /order/) and the page tells us which one via
+     <body data-view>. localStorage is per-origin, so the class list is shared by all routes. */
   var S={names:[],used:[],accent:"#6667AB",theme:"auto",groups:4,timerLen:300,view:"pick"};
   var timer={left:300,on:false,id:null};
 
   var $=function(id){return document.getElementById(id)};
   var stage=$("stage"), nameOut=$("nameOut"), clockOut=$("clockOut"), groupsOut=$("groupsOut"),
-      hint=$("stageHint"), mainBtn=$("mainBtn"), countEl=$("count"), setup=$("setup"),
+      orderOut=$("orderOut"), hint=$("stageHint"), mainBtn=$("mainBtn"), countEl=$("count"), setup=$("setup"),
       settings=$("settings"), controls=$("controls"), ta=$("names"),
       progress=$("progress"), progressFill=$("progressFill");
 
   /* ---------- storage ---------- */
+  /** Restore saved state from localStorage, ignoring any parse/permission error. */
   function load(){ try{var r=localStorage.getItem(KEY); if(r) Object.assign(S,JSON.parse(r));}catch(e){} }
+  /** Persist state to localStorage, silently skipping if storage is unavailable. */
   function save(){ try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){} }
 
   /* ---------- colour ---------- */
+  /** Convert a #rgb or #rrggbb hex string to an [r,g,b] array. */
   function hex2rgb(h){h=h.replace("#","");if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
     return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+  /** Relative luminance of an [r,g,b] colour per WCAG 2. */
   function lum(c){var a=c.map(function(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});
     return .2126*a[0]+.7152*a[1]+.0722*a[2];}
+  /** WCAG contrast ratio between two [r,g,b] colours. */
   function ratio(a,b){var l1=lum(a),l2=lum(b);return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);}
+  /** Linearly blend colour c toward colour t by amt (0..1). */
   function mix(c,t,amt){return c.map(function(v,i){return Math.round(v+(t[i]-v)*amt)});}
+  /** Convert an [r,g,b] array back to a #rrggbb string, clamping each channel. */
   function rgb2hex(c){return "#"+c.map(function(v){return ("0"+Math.max(0,Math.min(255,v)).toString(16)).slice(-2)}).join("");}
-  /* nudge accent toward black (light theme) or white (dark theme) until it reads as text */
+  /** Return a version of the accent that meets 4.5:1 contrast against the page background. */
   function readable(hex,dark){
     var c=hex2rgb(hex), target=dark?[255,255,255]:[0,0,0], bg=dark?hex2rgb("#131318"):hex2rgb("#FBFBFD");
     for(var i=0;i<=10;i++){ var t=mix(c,target,i*0.07); if(ratio(t,bg)>=4.5) return rgb2hex(t); }
     return rgb2hex(mix(c,target,.7));
   }
+  /** True when the effective theme (manual or system) is dark. */
   function isDark(){
     var t=document.documentElement.getAttribute("data-theme");
     if(t==="dark") return true; if(t==="light") return false;
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   }
+  /** Push the accent colour into CSS variables, swatch state and the favicon. */
   function applyAccent(){
     var r=document.documentElement, a=S.accent;
     r.style.setProperty("--accent",a);
@@ -46,6 +58,7 @@
     var svg="<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='"+a+"'/></svg>";
     $("favicon").setAttribute("href","data:image/svg+xml,"+encodeURIComponent(svg));
   }
+  /** Apply the light/dark/auto theme attribute and refresh the accent for it. */
   function applyTheme(){
     if(S.theme==="auto") document.documentElement.removeAttribute("data-theme");
     else document.documentElement.setAttribute("data-theme",S.theme);
@@ -56,16 +69,20 @@
   }
 
   /* ---------- names ---------- */
+  /** Split pasted text into trimmed names. Accepts newline, tab, comma or semicolon separators. */
   function parse(txt){
     return txt.split(/[\n\r\t,;]+/).map(function(s){return s.trim()}).filter(Boolean);
   }
+  /** Names not yet picked in the current round. */
   function remaining(){
     return S.names.filter(function(n){return S.used.indexOf(n)<0});
   }
 
   /* ---------- render ---------- */
-  function show(el){ [nameOut,clockOut,groupsOut,hint].forEach(function(e){e.classList.add("hidden")});
+  /** Show exactly one stage element (or none) and hide the others. */
+  function show(el){ [nameOut,clockOut,groupsOut,orderOut,hint].forEach(function(e){e.classList.add("hidden")});
                      if(el) el.classList.remove("hidden"); }
+  /** Redraw every control and the stage from the current state and view. */
   function render(){
     var has=S.names.length>0;
     document.body.classList.toggle("setup-view", !has);
@@ -74,9 +91,6 @@
     stage.classList.toggle("hidden", !has);
     $("editBtn").classList.toggle("hidden", !has);
 
-    [].forEach.call($("nav").children,function(b){
-      b.setAttribute("aria-current", b.dataset.view===S.view?"true":"false");
-    });
     $("resetBtn").classList.toggle("hidden", S.view!=="pick");
     $("groupsField").classList.toggle("hidden", S.view!=="groups");
     $("timerField").classList.toggle("hidden", S.view!=="timer");
@@ -106,6 +120,13 @@
       progress.classList.add("hidden");
       paintTimerFill();
     }
+    else if(S.view==="order"){
+      mainBtn.textContent="Shuffle order"; mainBtn.disabled=false; countEl.textContent=S.names.length+" students";
+      if(orderOut.children.length) show(orderOut);
+      else { show(hint); hint.innerHTML="Press <b>Shuffle order</b> to line up the class"; }
+      progress.classList.add("hidden");
+      paintTimerFill();
+    }
     else {
       mainBtn.textContent = timer.on ? "Pause" : "Start timer";
       mainBtn.disabled=false; countEl.textContent="";
@@ -116,6 +137,7 @@
   }
 
   /* ---------- actions ---------- */
+  /** Pick a random not-yet-used name, resetting the round when everyone has had a turn. */
   function pick(){
     var pool=remaining();
     if(!pool.length){ S.used=[]; pool=remaining(); }
@@ -127,9 +149,18 @@
     stage.classList.add("lit"); setTimeout(function(){stage.classList.remove("lit")},420);
     save(); render();
   }
+  /** Return a shuffled copy of an array (Fisher-Yates, unbiased). */
+  function shuffled(list){
+    var a=list.slice();
+    for(var i=a.length-1;i>0;i--){
+      var j=Math.floor(Math.random()*(i+1));
+      var t=a[i]; a[i]=a[j]; a[j]=t;
+    }
+    return a;
+  }
+  /** Shuffle the class and deal it round-robin into S.groups cards. */
   function makeGroups(){
-    var a=S.names.slice();
-    for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}
+    var a=shuffled(S.names);
     var k=Math.max(2,Math.min(12,S.groups||4)), buckets=[];
     for(var g=0;g<k;g++) buckets.push([]);
     a.forEach(function(n,idx){ buckets[idx%k].push(n); });
@@ -144,6 +175,15 @@
     });
     show(groupsOut);
   }
+  /** Shuffle the class into a numbered speaking/presentation order. */
+  function makeOrder(){
+    orderOut.innerHTML="";
+    shuffled(S.names).forEach(function(n){
+      var li=document.createElement("li"); li.textContent=n; orderOut.appendChild(li);
+    });
+    show(orderOut);
+  }
+  /** Render the remaining time as mm:ss digits. */
   function drawClock(){
     var m=Math.floor(timer.left/60), s=timer.left%60;
     var str=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
@@ -153,11 +193,13 @@
     clockOut.classList.toggle("done", timer.left===0);
     paintTimerFill();
   }
+  /** Paint the elapsed-time ring behind the clock (timer view only). */
   function paintTimerFill(){
     if(S.view!=="timer"){ stage.style.background=""; return; }
     var pct=S.timerLen>0 ? Math.min(100,Math.max(0,(S.timerLen-timer.left)/S.timerLen*100)) : 0;
     stage.style.background="conic-gradient(var(--accent) "+pct+"%, var(--surface) "+pct+"%)";
   }
+  /** Start or pause the countdown. */
   function toggleTimer(){
     if(timer.on){ clearInterval(timer.id); timer.on=false; }
     else {
@@ -172,6 +214,7 @@
   }
 
   /* ---------- present ---------- */
+  /** Enter or leave presenter mode, requesting fullscreen when available. */
   function present(on){
     document.body.classList.toggle("present", on);
     if(on && document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(function(){});
@@ -179,13 +222,17 @@
   }
 
   /* ---------- setup <-> edit-button morph ---------- */
+  /** True when the user prefers reduced motion. */
   function reduceMotion(){ return window.matchMedia("(prefers-reduced-motion: reduce)").matches; }
+  /** Replay the pop animation on an element. */
   function pop(el){ el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop"); }
+  /** Empty panel used as the flying ghost when the setup card morphs into the Edit button. */
   function ghostShell(){
     var d=document.createElement("div");
     d.className="panel";
     return d;
   }
+  /** Animate a clone from rect `from` to rect `to`, then remove it and call cb. */
   function flyGhost(clone, from, to, cb){
     clone.style.position="fixed"; clone.style.margin="0"; clone.style.zIndex="80";
     clone.style.pointerEvents="none"; clone.style.transformOrigin="top left";
@@ -231,16 +278,15 @@
     ta.focus();
   };
   $("editBtn").onclick=function(){
-    ta.value=S.names.join("\n"); S.names=[]; nameOut.textContent=""; groupsOut.innerHTML="";
+    ta.value=S.names.join("\n"); S.names=[]; nameOut.textContent=""; groupsOut.innerHTML=""; orderOut.innerHTML="";
     save(); render(); ta.focus();
   };
   $("resetBtn").onclick=function(){ S.used=[]; nameOut.textContent=""; save(); render(); };
   mainBtn.onclick=function(){
-    if(S.view==="pick") pick(); else if(S.view==="groups") makeGroups(); else toggleTimer();
-  };
-  $("nav").onclick=function(e){
-    var b=e.target.closest("button[data-view]"); if(!b) return;
-    S.view=b.dataset.view; save(); render();
+    if(S.view==="pick") pick();
+    else if(S.view==="groups") makeGroups();
+    else if(S.view==="order") makeOrder();
+    else toggleTimer();
   };
   $("presentBtn").onclick=function(){ present(true) };
   $("exitBtn").onclick=function(){ present(false) };
@@ -258,6 +304,7 @@
     S.theme=b.dataset.t; save(); applyTheme();
   };
   $("gCount").oninput=function(){ S.groups=parseInt(this.value,10)||4; save(); };
+  /** Read minutes/seconds inputs into S.timerLen and reset the clock if not running. */
   function applyTimerLen(){
     var m=Math.max(0,parseInt($("timerMin").value,10)||0), s=Math.max(0,Math.min(59,parseInt($("timerSec").value,10)||0));
     S.timerLen=Math.max(1,m*60+s);
@@ -281,7 +328,7 @@
 
   /* ---------- boot ---------- */
   load();
-  S.view="pick";
+  S.view=document.body.getAttribute("data-view")||"pick";
   $("gCount").value=S.groups;
   timer.left=S.timerLen;
   $("timerMin").value=Math.floor(S.timerLen/60);

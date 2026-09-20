@@ -38,12 +38,12 @@ body.setup-view #setup{margin-top:auto; margin-bottom:auto}
 /* ---------- header ---------- */
 .top{display:flex; align-items:center; gap:16px; flex-wrap:wrap}
 .brand{font-family:var(--fd); font-weight:700; font-size:19px; letter-spacing:-.01em;
-       display:flex; align-items:center; gap:9px; margin-right:auto}
+       display:flex; align-items:center; gap:9px; margin-right:auto; color:inherit; text-decoration:none}
 .brand .dot{width:13px;height:13px;border-radius:50%;background:var(--accent);flex:none}
 .nav{display:flex; gap:3px; background:var(--surface-2); padding:3px; border-radius:11px}
-.nav button{font-family:var(--fd); font-weight:500; font-size:14px; padding:8px 15px;
-  border:0; background:transparent; border-radius:8px; cursor:pointer; color:var(--ink-2)}
-.nav button[aria-current="true"]{background:var(--surface); color:var(--ink);
+.nav a{font-family:var(--fd); font-weight:500; font-size:14px; padding:8px 15px;
+  border:0; background:transparent; border-radius:8px; cursor:pointer; color:var(--ink-2); text-decoration:none}
+.nav a[aria-current="page"]{background:var(--surface); color:var(--ink);
   box-shadow:0 0 0 2px var(--accent), var(--shadow)}
 .iconbtn{font-family:var(--fd); font-size:14px; font-weight:500; padding:9px 14px;
   background:var(--surface); border:1px solid var(--rule); border-radius:10px; cursor:pointer}
@@ -89,6 +89,8 @@ body.setup-view #setup{margin-top:auto; margin-bottom:auto}
 .count{font-family:var(--fb); font-variant-numeric:tabular-nums; color:var(--ink-2); font-size:15px}
 .count b{color:var(--accent-text); font-weight:600}
 .spacer{margin-left:auto; display:flex; gap:8px; flex-wrap:wrap}
+.num{width:64px; padding:8px 10px; border:1px solid var(--rule); border-radius:9px; background:var(--surface-2)}
+#timerMin,#timerSec{width:48px}
 .kbd{font-family:var(--fd); font-size:12px; color:var(--muted); border:1px solid var(--rule);
      border-radius:6px; padding:2px 7px}
 
@@ -147,6 +149,31 @@ input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--rule);
 .clock-digit{display:inline-block;width:1ch;text-align:center}
 .clock-colon{display:inline-block}
 
+/* order: numbered speaking order, sized to be read from the back of the room */
+.order{width:100%; margin:0; padding:0 0 0 1.6em; text-align:left; columns:2; column-gap:32px;
+       font-family:var(--fd); font-weight:600; font-size:clamp(18px,2.6vw,30px); line-height:1.45}
+.order li{break-inside:avoid; padding:2px 0}
+.order li::marker{color:var(--accent-text); font-variant-numeric:tabular-nums}
+@media (min-width:1024px){ .order{columns:3} }
+body.present .order{font-size:clamp(24px,3.4vw,44px)}
+
+/* about: crawlable text below the tool, and the static text pages (404, privacy) */
+.about{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:32px;
+       padding-top:24px; border-top:1px solid var(--rule); color:var(--ink-2); font-size:15.5px}
+.about h1,.prose h1{font-family:var(--fd); font-size:26px; font-weight:700; letter-spacing:-.02em; margin:0 0 10px; color:var(--ink)}
+.about h2,.prose h2{font-family:var(--fd); font-size:17px; font-weight:600; margin:22px 0 8px; color:var(--ink)}
+.about h3{font-family:var(--fd); font-size:15px; font-weight:600; margin:14px 0 4px; color:var(--ink)}
+.about p,.prose p{margin:0 0 10px; max-width:62ch}
+.about ol,.about ul,.prose ul{margin:0 0 10px; padding-left:1.3em; max-width:62ch}
+.about li,.prose li{margin:4px 0}
+.about a,.prose a,footer a{color:var(--accent-text); text-decoration-thickness:1px; text-underline-offset:2px}
+.tools{list-style:none; padding:0}
+.about pre{background:var(--surface-2); border:1px solid var(--rule); border-radius:10px; padding:12px 14px;
+           font-size:13px; line-height:1.5; overflow-x:auto; white-space:pre-wrap; word-break:break-all; margin:0 0 10px}
+.prose{gap:0; color:var(--ink-2)}
+.muted{color:var(--muted); font-size:14px}
+body.text-page .wrap{gap:24px}
+
 /* ad slot — hidden in present mode */
 .ad{border:1px dashed var(--rule-2); border-radius:14px; padding:18px; text-align:center;
     color:var(--muted); font-size:13px; background:var(--surface)}
@@ -165,6 +192,7 @@ body.present .controls,
 body.present .progress,
 body.present .panel,
 body.present .ad,
+body.present .about,
 body.present footer{display:none !important}
 body.present .stage{border:0; border-radius:0; height:100vh; min-height:100vh; box-shadow:none; padding:24px}
 body.present .name{font-size:clamp(64px, 19vw, 340px)}
@@ -178,7 +206,7 @@ body:not(.present) .exit{display:none}
   .wrap{padding:14px 14px 28px; gap:14px}
   .brand{font-size:17px; width:100%; margin-right:0}
   .nav{flex:1}
-  .nav button{flex:1; padding:10px 8px}
+  .nav a{flex:1; padding:10px 8px; text-align:center}
   .stage{min-height:38vh; border-radius:16px; padding:24px 16px}
   .pick{flex:1 1 100%; max-width:none; padding:18px 24px}
   .spacer{margin-left:0; width:100%}
