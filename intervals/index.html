@@ -6,25 +6,25 @@
 <!-- The app shell below is shared byte-for-byte with /, /groups/, /timer/, /order/ and /intervals/.
      Only <head> metadata, the active nav link and the ABOUT section differ per route.
      Change the shell in all five files together. -->
-<title>Random Group Generator for the Classroom | Classroom Picker</title>
-<meta name="description" content="Split your class into random groups in one click. Choose 2 to 12 teams, uses the class list you already saved. Free, no account, works on the projector.">
-<link rel="canonical" href="https://classroompicker.com/groups/">
+<title>Interval Timer for the Classroom | Classroom Picker</title>
+<meta name="description" content="A simple repeating interval timer for the board. Set 30 seconds, press start, press next to move on. Leftover time or overrun carries into the next interval. Free, no account.">
+<link rel="canonical" href="https://classroompicker.com/intervals/">
 <meta name="theme-color" content="#6667AB">
 
 <!-- Social previews -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Classroom Picker">
 <meta property="og:locale" content="en_US">
-<meta property="og:url" content="https://classroompicker.com/groups/">
-<meta property="og:title" content="Random Group Generator for the Classroom | Classroom Picker">
-<meta property="og:description" content="Split your class into random groups in one click. Choose 2 to 12 teams, uses the class list you already saved. Free, no account, works on the projector.">
+<meta property="og:url" content="https://classroompicker.com/intervals/">
+<meta property="og:title" content="Interval Timer for the Classroom | Classroom Picker">
+<meta property="og:description" content="A simple repeating interval timer for the board. Set 30 seconds, press start, press next to move on. Leftover time or overrun carries into the next interval. Free, no account.">
 <meta property="og:image" content="https://classroompicker.com/assets/img/og-image.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Classroom Picker showing a student's name in large type">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Random Group Generator for the Classroom | Classroom Picker">
-<meta name="twitter:description" content="Split your class into random groups in one click. Choose 2 to 12 teams, uses the class list you already saved. Free, no account, works on the projector.">
+<meta name="twitter:title" content="Interval Timer for the Classroom | Classroom Picker">
+<meta name="twitter:description" content="A simple repeating interval timer for the board. Set 30 seconds, press start, press next to move on. Leftover time or overrun carries into the next interval. Free, no account.">
 <meta name="twitter:image" content="https://classroompicker.com/assets/img/og-image.png">
 
 <!-- Icons and manifest -->
@@ -45,10 +45,10 @@
   "@graph": [
     {
       "@type": "WebApplication",
-      "@id": "https://classroompicker.com/groups/#app",
-      "name": "Random Group Generator – Classroom Picker",
-      "url": "https://classroompicker.com/groups/",
-      "description": "Split your class into random groups in one click. Choose 2 to 12 teams, uses the class list you already saved. Free, no account, works on the projector.",
+      "@id": "https://classroompicker.com/intervals/#app",
+      "name": "Interval Timer – Classroom Picker",
+      "url": "https://classroompicker.com/intervals/",
+      "description": "A simple repeating interval timer for the board. Set 30 seconds, press start, press next to move on. Leftover time or overrun carries into the next interval. Free, no account.",
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Any",
       "browserRequirements": "Requires JavaScript",
@@ -71,30 +71,30 @@
     },
     {
       "@type": "FAQPage",
-      "@id": "https://classroompicker.com/groups/#faq",
+      "@id": "https://classroompicker.com/intervals/#faq",
       "mainEntity": [
         {
           "@type": "Question",
-          "name": "How does the team generator split uneven classes?",
+          "name": "What happens if an interval runs over?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Names are shuffled and dealt round-robin into the groups, so sizes differ by at most one student. With 26 students and 4 groups you get two groups of 7 and two of 6."
+            "text": "The countdown continues past zero and shows the overrun with a minus sign. When you press Next interval, that overrun is subtracted from the new interval, so a 30-second round that ran 5 seconds late gives the next round 25 seconds."
           }
         },
         {
           "@type": "Question",
-          "name": "Can I make pairs instead of groups?",
+          "name": "What happens if I move on early?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. Set the number of groups to half your class size, rounded up. For a class of 28 choose 14 groups and every group is a pair."
+            "text": "The seconds left are added to the next interval. Finish a 30-second round with 10 seconds spare and the next round gets 40 seconds. The total elapsed time keeps counting either way."
           }
         },
         {
           "@type": "Question",
-          "name": "Can I fix certain students together or apart?",
+          "name": "How is this different from the classroom timer?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Not yet. The generator is purely random, which is often the fairest option in front of a class. Re-shuffle until the mix works for you."
+            "text": "The classroom timer counts down once and stops. The interval timer repeats the same length as many times as you need and keeps a running total, which suits rotations and rounds."
           }
         }
       ]
@@ -103,7 +103,7 @@
 }
 </script>
 </head>
-<body data-view="groups">
+<body data-view="interval">
 <div class="wrap">
   <button class="iconbtn exit" id="exitBtn" type="button">Exit ✕</button>
 
@@ -111,10 +111,10 @@
     <a class="brand" href="/"><span class="dot"></span>Classroom Picker</a>
     <nav class="nav" aria-label="Tools">
       <a href="/">Pick</a>
-      <a href="/groups/" aria-current="page">Groups</a>
+      <a href="/groups/">Groups</a>
       <a href="/timer/">Timer</a>
       <a href="/order/">Order</a>
-      <a href="/intervals/">Intervals</a>
+      <a href="/intervals/" aria-current="page">Intervals</a>
     </nav>
     <button class="iconbtn iconbtn-icon" id="editBtn" type="button" aria-label="Edit class" title="Edit class">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -231,15 +231,15 @@
        Intro and how-to are always visible; the rest is collapsed in <details> (still indexable). -->
   <section class="about" id="about">
     <div class="about-col">
-      <h1>Random Group Generator</h1>
-      <p>Split your class into random teams for group work, discussions or projects. Choose how many groups you want and press one button. The generator uses the same saved class list as the student picker, so there is nothing to paste again. Groups are dealt evenly, one student at a time, and shown large enough for the whole room.</p>
+      <h1>Interval Timer</h1>
+      <p>A repeating timer for activities that run in rounds: speed debates, station rotations, one-minute presentations, timed quiz questions. Set one interval length and press start. When you move to the next interval, any seconds left over are added to it and any overrun is taken off it, so the whole activity still finishes on time. A small total keeps track of how long the activity has been running.</p>
     </div>
     <div class="about-col">
       <h2>How to use it</h2>
       <ol>
-        <li>Save your class list once if you have not already. It is shared with the picker and the timer.</li>
-        <li>Set the number of groups, from 2 to 12, then press <b>Make groups</b> or the spacebar.</li>
-        <li>Not happy with the mix? Press again for a fresh shuffle, or press <b>F</b> to show the groups full screen.</li>
+        <li>Set the interval length, for example 0 minutes 30 seconds. It is remembered for next time.</li>
+        <li>Press <b>Start</b>. The interval counts down in large digits, with the total elapsed time above it.</li>
+        <li>Press the big <b>Next interval</b> button, the spacebar or <b>N</b> when a round ends early or late. Press <b>Reset</b> or <b>R</b> to start the activity again.</li>
       </ol>
     </div>
     <details class="about-more">
@@ -249,24 +249,24 @@
         <h2>Other classroom tools</h2>
         <ul class="tools">
         <li><a href="/">Random student picker</a> – Pick one name at a time, no repeats until everyone has had a turn.</li>
+        <li><a href="/groups/">Random group generator</a> – Split the class into 2 to 12 even teams.</li>
         <li><a href="/timer/">Classroom timer</a> – Full-screen countdown for the board.</li>
         <li><a href="/order/">Random order generator</a> – Shuffle the class into a numbered speaking order.</li>
-        <li><a href="/intervals/">Interval timer</a> – Repeating rounds with carry-over and a running total.</li>
         </ul>
         <h2>Embed or link to this tool</h2>
         <p>Paste this into your class blog, school website or learning platform to embed the tool:</p>
-        <pre><code>&lt;iframe src="https://classroompicker.com/groups/" width="100%" height="640" style="border:0" loading="lazy" title="Random Group Generator – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
+        <pre><code>&lt;iframe src="https://classroompicker.com/intervals/" width="100%" height="640" style="border:0" loading="lazy" title="Interval Timer – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
         <p>Or link to it with:</p>
-        <pre><code>&lt;a href="https://classroompicker.com/groups/"&gt;Random Group Generator by Classroom Picker&lt;/a&gt;</code></pre>
+        <pre><code>&lt;a href="https://classroompicker.com/intervals/"&gt;Interval Timer by Classroom Picker&lt;/a&gt;</code></pre>
       </div>
       <div class="about-col">
         <h2>Frequently asked questions</h2>
-      <h3>How does the team generator split uneven classes?</h3>
-      <p>Names are shuffled and dealt round-robin into the groups, so sizes differ by at most one student. With 26 students and 4 groups you get two groups of 7 and two of 6.</p>
-      <h3>Can I make pairs instead of groups?</h3>
-      <p>Yes. Set the number of groups to half your class size, rounded up. For a class of 28 choose 14 groups and every group is a pair.</p>
-      <h3>Can I fix certain students together or apart?</h3>
-      <p>Not yet. The generator is purely random, which is often the fairest option in front of a class. Re-shuffle until the mix works for you.</p>
+      <h3>What happens if an interval runs over?</h3>
+      <p>The countdown continues past zero and shows the overrun with a minus sign. When you press Next interval, that overrun is subtracted from the new interval, so a 30-second round that ran 5 seconds late gives the next round 25 seconds.</p>
+      <h3>What happens if I move on early?</h3>
+      <p>The seconds left are added to the next interval. Finish a 30-second round with 10 seconds spare and the next round gets 40 seconds. The total elapsed time keeps counting either way.</p>
+      <h3>How is this different from the classroom timer?</h3>
+      <p>The classroom timer counts down once and stops. The interval timer repeats the same length as many times as you need and keeps a running total, which suits rotations and rounds.</p>
       </div>
       </div>
     </details>
