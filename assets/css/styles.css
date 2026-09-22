@@ -148,6 +148,16 @@ input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--rule);
 .clock.done{color:var(--accent-text)}
 .clock-digit{display:inline-block;width:1ch;text-align:center}
 .clock-colon{display:inline-block}
+.clock-sign{display:inline-block;margin-right:.08em}
+
+/* interval timer: small running total above, big interval countdown below */
+.interval{display:flex; flex-direction:column; align-items:center; gap:8px}
+.interval-total{font-family:var(--fd); font-weight:500; font-variant-numeric:tabular-nums;
+                font-size:clamp(16px,2.4vw,26px); color:var(--muted); letter-spacing:.01em}
+.interval-total .clock-digit,.interval-total .clock-colon{display:inline}
+.interval .clock{font-size:clamp(56px,15vw,170px)}
+body.present .interval-total{font-size:clamp(22px,3vw,40px)}
+body.present .interval .clock{font-size:clamp(80px,22vw,360px)}
 
 /* order: numbered speaking order, sized to be read from the back of the room */
 .order{width:100%; margin:0; padding:0 0 0 1.6em; text-align:left; columns:2; column-gap:32px;
@@ -158,7 +168,7 @@ input[type=color]{width:34px;height:34px;padding:0;border:1px solid var(--rule);
 body.present .order{font-size:clamp(24px,3.4vw,44px)}
 
 /* about: crawlable text below the tool, and the static text pages (404, privacy) */
-.about{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:32px;
+.about{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px;
        padding-top:24px; border-top:1px solid var(--rule); color:var(--ink-2); font-size:15.5px}
 .about h1,.prose h1{font-family:var(--fd); font-size:26px; font-weight:700; letter-spacing:-.02em; margin:0 0 10px; color:var(--ink)}
 .about h2,.prose h2{font-family:var(--fd); font-size:17px; font-weight:600; margin:22px 0 8px; color:var(--ink)}
@@ -168,6 +178,17 @@ body.present .order{font-size:clamp(24px,3.4vw,44px)}
 .about li,.prose li{margin:4px 0}
 .about a,.prose a,footer a{color:var(--accent-text); text-decoration-thickness:1px; text-underline-offset:2px}
 .tools{list-style:none; padding:0}
+/* collapsible remainder: spans both columns, two columns inside when open */
+.about-more{grid-column:1 / -1; border-top:1px solid var(--rule); padding-top:14px}
+.about-more summary{font-family:var(--fd); font-weight:600; font-size:15px; color:var(--ink); cursor:pointer;
+                    list-style:none; display:flex; align-items:center; gap:8px; width:max-content}
+.about-more summary::-webkit-details-marker{display:none}
+.about-more summary::before{content:""; width:7px; height:7px; border-right:2px solid currentColor; border-bottom:2px solid currentColor;
+                            transform:rotate(-45deg); transition:transform .15s ease; margin-left:2px}
+.about-more[open] summary::before{transform:rotate(45deg)}
+.about-more summary:hover{color:var(--accent-text)}
+.about-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:32px; padding-top:8px}
+.about-col > h2:first-child{margin-top:4px}
 .about pre{background:var(--surface-2); border:1px solid var(--rule); border-radius:10px; padding:12px 14px;
            font-size:13px; line-height:1.5; overflow-x:auto; white-space:pre-wrap; word-break:break-all; margin:0 0 10px}
 .prose{gap:0; color:var(--ink-2)}
@@ -204,9 +225,15 @@ body:not(.present) .exit{display:none}
 /* ---------- responsive ---------- */
 @media (max-width:720px){
   .wrap{padding:14px 14px 28px; gap:14px}
-  .brand{font-size:17px; width:100%; margin-right:0}
-  .nav{flex:1}
+  /* Row one: brand pushed left, class and settings icons right. Row two: full-width nav. */
+  .top{gap:10px}
+  .brand{font-size:17px; order:0}
+  #editBtn{order:1}
+  .setwrap{order:2}
+  .nav{order:3; width:100%}
   .nav a{flex:1; padding:10px 8px; text-align:center}
+  #presentBtn{display:none}
+  .about,.about-grid{grid-template-columns:1fr; gap:20px}
   .stage{min-height:38vh; border-radius:16px; padding:24px 16px}
   .pick{flex:1 1 100%; max-width:none; padding:18px 24px}
   .spacer{margin-left:0; width:100%}

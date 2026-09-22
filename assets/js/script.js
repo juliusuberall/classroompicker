@@ -4,12 +4,15 @@
   /* Persisted state. `view` is NOT restored from storage: each tool lives on its own
      route (/, /groups/, /timer/, /order/) and the page tells us which one via
      <body data-view>. localStorage is per-origin, so the class list is shared by all routes. */
-  var S={names:[],used:[],accent:"#6667AB",theme:"auto",groups:4,timerLen:300,view:"pick"};
+  var S={names:[],used:[],accent:"#6667AB",theme:"auto",groups:4,timerLen:300,intervalLen:30,view:"pick"};
   var timer={left:300,on:false,id:null};
+  /* Interval timer: `left` may go negative (overtime). `total` is seconds elapsed since start. */
+  var iv={left:30,total:0,on:false,id:null};
 
   var $=function(id){return document.getElementById(id)};
   var stage=$("stage"), nameOut=$("nameOut"), clockOut=$("clockOut"), groupsOut=$("groupsOut"),
-      orderOut=$("orderOut"), hint=$("stageHint"), mainBtn=$("mainBtn"), countEl=$("count"), setup=$("setup"),
+      orderOut=$("orderOut"), intervalOut=$("intervalOut"), intervalTotal=$("intervalTotal"),
+      intervalClock=$("intervalClock"), hint=$("stageHint"), mainBtn=$("mainBtn"), countEl=$("count"), setup=$("setup"),
       settings=$("settings"), controls=$("controls"), ta=$("names"),
       progress=$("progress"), progressFill=$("progressFill");
 
@@ -80,7 +83,7 @@
 
   /* ---------- render ---------- */
   /** Show exactly one stage element (or none) and hide the others. */
-  function show(el){ [nameOut,clockOut,groupsOut,orderOut,hint].forEach(function(e){e.classList.add("hidden")});
+  function show(el){ [nameOut,clockOut,groupsOut,orderOut,intervalOut,hint].forEach(function(e){e.classList.add("hidden")});
                      if(el) el.classList.remove("hidden"); }
   /** Redraw every control and the stage from the current state and view. */
   function render(){
@@ -91,9 +94,12 @@
     stage.classList.toggle("hidden", !has);
     $("editBtn").classList.toggle("hidden", !has);
 
-    $("resetBtn").classList.toggle("hidden", S.view!=="pick");
+    $("resetBtn").classList.toggle("hidden", S.view!=="pick" && S.view!=="interval");
+    $("resetBtn").textContent = S.view==="interval" ? "Reset" : "Start over";
+    $("startBtn").classList.toggle("hidden", S.view!=="interval");
     $("groupsField").classList.toggle("hidden", S.view!=="groups");
     $("timerField").classList.toggle("hidden", S.view!=="timer");
+    $("intervalField").classList.toggle("hidden", S.view!=="interval");
 
     if(!has){ show(null); progress.classList.add("hidden"); paintTimerFill(); return; }
 
@@ -124,6 +130,17 @@
       mainBtn.textContent="Shuffle order"; mainBtn.disabled=false; countEl.textContent=S.names.length+" students";
       if(orderOut.children.length) show(orderOut);
       else { show(hint); hint.innerHTML="Press <b>Shuffle order</b> to line up the class"; }
+      progress.classList.add("hidden");
+      paintTimerFill();
+    }
+    else if(S.view==="interval"){
+      /* Big button advances the interval; it only makes sense once the first interval has begun */
+      mainBtn.textContent="Next interval";
+      mainBtn.disabled = !iv.on && iv.total===0;
+      countEl.textContent="";
+      $("startBtn").textContent = iv.on ? "Pause" : "Start";
+      $("intervalMin").disabled = $("intervalSec").disabled = iv.on || iv.total>0;
+      show(intervalOut); drawInterval();
       progress.classList.add("hidden");
       paintTimerFill();
     }
@@ -183,13 +200,19 @@
     });
     show(orderOut);
   }
-  /** Render the remaining time as mm:ss digits. */
-  function drawClock(){
-    var m=Math.floor(timer.left/60), s=timer.left%60;
+  /** Format seconds as mm:ss wrapped in per-digit spans. Negative values get a leading minus. */
+  function clockHTML(seconds){
+    var neg=seconds<0, abs=Math.abs(seconds);
+    var m=Math.floor(abs/60), s=abs%60;
     var str=(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
-    clockOut.innerHTML=str.split("").map(function(ch){
+    var html=str.split("").map(function(ch){
       return ch===":" ? '<span class="clock-colon">:</span>' : '<span class="clock-digit">'+ch+'</span>';
     }).join("");
+    return (neg ? '<span class="clock-sign">−</span>' : "")+html;
+  }
+  /** Render the remaining time as mm:ss digits. */
+  function drawClock(){
+    clockOut.innerHTML=clockHTML(timer.left);
     clockOut.classList.toggle("done", timer.left===0);
     paintTimerFill();
   }
@@ -210,6 +233,39 @@
         drawClock();
       },1000);
     }
+    render();
+  }
+
+  /* ---------- interval timer ---------- */
+  /** Render total elapsed time (small) and the current interval countdown (big). */
+  function drawInterval(){
+    intervalTotal.innerHTML="Total "+clockHTML(iv.total);
+    intervalClock.innerHTML=clockHTML(iv.left);
+    intervalClock.classList.toggle("done", iv.left<=0);
+  }
+  /** Start or pause the interval timer. Unlike the plain timer it keeps counting past zero. */
+  function toggleInterval(){
+    if(iv.on){ clearInterval(iv.id); iv.on=false; }
+    else {
+      iv.on=true;
+      iv.id=setInterval(function(){
+        iv.left--; iv.total++;
+        drawInterval();
+      },1000);
+    }
+    render();
+  }
+  /** Move to the next interval. Leftover time is added to it, overtime is subtracted from it. */
+  function nextInterval(){
+    if(!iv.on && iv.total===0) return;
+    iv.left = S.intervalLen + iv.left;
+    drawInterval();
+    render();
+  }
+  /** Stop the interval timer and clear both the countdown and the total. */
+  function resetInterval(){
+    clearInterval(iv.id); iv.on=false;
+    iv.left=S.intervalLen; iv.total=0;
     render();
   }
 
@@ -281,11 +337,16 @@
     ta.value=S.names.join("\n"); S.names=[]; nameOut.textContent=""; groupsOut.innerHTML=""; orderOut.innerHTML="";
     save(); render(); ta.focus();
   };
-  $("resetBtn").onclick=function(){ S.used=[]; nameOut.textContent=""; save(); render(); };
+  $("resetBtn").onclick=function(){
+    if(S.view==="interval"){ resetInterval(); return; }
+    S.used=[]; nameOut.textContent=""; save(); render();
+  };
+  $("startBtn").onclick=toggleInterval;
   mainBtn.onclick=function(){
     if(S.view==="pick") pick();
     else if(S.view==="groups") makeGroups();
     else if(S.view==="order") makeOrder();
+    else if(S.view==="interval") nextInterval();
     else toggleTimer();
   };
   $("presentBtn").onclick=function(){ present(true) };
@@ -314,6 +375,16 @@
   }
   $("timerMin").oninput=applyTimerLen;
   $("timerSec").oninput=applyTimerLen;
+  /** Read minutes/seconds inputs into S.intervalLen; only editable before the first start. */
+  function applyIntervalLen(){
+    var m=Math.max(0,parseInt($("intervalMin").value,10)||0), s=Math.max(0,Math.min(59,parseInt($("intervalSec").value,10)||0));
+    S.intervalLen=Math.max(1,m*60+s);
+    iv.left=S.intervalLen;
+    drawInterval();
+    save();
+  }
+  $("intervalMin").oninput=applyIntervalLen;
+  $("intervalSec").oninput=applyIntervalLen;
   stage.onclick=function(){ if(S.names.length && S.view==="pick") pick(); };
 
   document.addEventListener("keydown",function(e){
@@ -323,6 +394,7 @@
     else if(k==="f"){ present(!document.body.classList.contains("present")); }
     else if(k==="escape"){ present(false); }
     else if(k==="r"){ $("resetBtn").click(); }
+    else if(k==="n" && S.view==="interval"){ nextInterval(); }
   });
   window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",applyAccent);
 
@@ -333,6 +405,9 @@
   timer.left=S.timerLen;
   $("timerMin").value=Math.floor(S.timerLen/60);
   $("timerSec").value=S.timerLen%60;
+  iv.left=S.intervalLen;
+  $("intervalMin").value=Math.floor(S.intervalLen/60);
+  $("intervalSec").value=S.intervalLen%60;
   applyTheme();
   render();
 })();

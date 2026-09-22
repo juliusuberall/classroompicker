@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- The app shell below is shared byte-for-byte with /, /groups/, /timer/ and /order/.
+<!-- The app shell below is shared byte-for-byte with /, /groups/, /timer/, /order/ and /intervals/.
      Only <head> metadata, the active nav link and the ABOUT section differ per route.
-     Change the shell in all four files together. -->
+     Change the shell in all five files together. -->
 <title>Random Student Picker – Free, No Sign-Up | Classroom Picker</title>
 <meta name="description" content="Pick a random student in one keystroke. Paste your class list once, it stays on your device. No account, no ads in presenter mode, fair no-repeat picking.">
 <link rel="canonical" href="https://classroompicker.com/">
@@ -122,9 +122,23 @@
       <a href="/groups/">Groups</a>
       <a href="/timer/">Timer</a>
       <a href="/order/">Order</a>
+      <a href="/intervals/">Intervals</a>
     </nav>
-    <button class="iconbtn" id="editBtn" type="button">Edit class</button>
-    <button class="iconbtn" id="presentBtn" type="button">Presenter mode</button>
+    <button class="iconbtn iconbtn-icon" id="editBtn" type="button" aria-label="Edit class" title="Edit class">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+        <circle cx="9" cy="7" r="4"></circle>
+        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+      </svg>
+    </button>
+    <button class="iconbtn iconbtn-icon" id="presentBtn" type="button" aria-label="Presenter mode" title="Presenter mode (F)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+        <line x1="8" y1="21" x2="16" y2="21"></line>
+        <line x1="12" y1="17" x2="12" y2="21"></line>
+      </svg>
+    </button>
     <div class="setwrap" id="setWrap">
       <button class="iconbtn iconbtn-icon" id="setBtn" type="button" aria-expanded="false" aria-label="Settings" title="Settings">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -181,6 +195,10 @@
     <div class="clock hidden" id="clockOut">05:00</div>
     <div class="groups hidden" id="groupsOut"></div>
     <ol class="order hidden" id="orderOut"></ol>
+    <div class="interval hidden" id="intervalOut">
+      <div class="interval-total" id="intervalTotal">Total 00:00</div>
+      <div class="clock" id="intervalClock">00:30</div>
+    </div>
   </section>
 
   <!-- PROGRESS -->
@@ -195,6 +213,7 @@
     <span class="kbd">space</span>
     <span class="spacer">
       <button class="iconbtn" id="resetBtn" type="button">Start over</button>
+      <button class="iconbtn hidden" id="startBtn" type="button">Start</button>
       <span class="row hidden" id="groupsField">
         <label class="count" for="gCount">Groups</label>
         <input class="num" type="number" id="gCount" min="2" max="12" value="4">
@@ -205,31 +224,51 @@
         <span class="count">:</span>
         <input class="num" type="number" id="timerSec" min="0" max="59" step="5" value="0" aria-label="Seconds">
       </span>
+      <span class="row hidden" id="intervalField">
+        <label class="count" for="intervalMin">Interval</label>
+        <input class="num" type="number" id="intervalMin" min="0" max="99" value="0">
+        <span class="count">:</span>
+        <input class="num" type="number" id="intervalSec" min="0" max="59" step="5" value="30" aria-label="Seconds">
+      </span>
     </span>
   </div>
 
   <noscript><p class="panel">Classroom Picker needs JavaScript to pick names. Please enable it and reload.</p></noscript>
 
-  <!-- ABOUT: crawlable text for search engines and first-time visitors. Hidden in presenter mode. -->
+  <!-- ABOUT: crawlable text for search engines and first-time visitors. Hidden in presenter mode.
+       Intro and how-to are always visible; the rest is collapsed in <details> (still indexable). -->
   <section class="about" id="about">
     <div class="about-col">
       <h1>Random Student Picker</h1>
       <p>Classroom Picker is a free random name picker built for the classroom projector. Paste your class list once and it is saved on this device, so tomorrow it is already there. Press the spacebar and a name appears in letters big enough to read from the back row. Every student is picked once before anyone is picked again, so the class can see it is fair.</p>
+    </div>
+    <div class="about-col">
       <h2>How to use it</h2>
       <ol>
         <li>Paste your class list, one name per line or straight from a spreadsheet, and press <b>Save class</b>.</li>
         <li>Press <b>Pick someone</b> or tap the spacebar. The chosen name fills the screen.</li>
         <li>Press <b>F</b> for presenter mode, a full-screen view with nothing but the name. Press <b>Esc</b> to leave it.</li>
       </ol>
-      <h2>Other classroom tools</h2>
-      <ul class="tools">
+    </div>
+    <details class="about-more">
+      <summary>More about this tool</summary>
+      <div class="about-grid">
+      <div class="about-col">
+        <h2>Other classroom tools</h2>
+        <ul class="tools">
         <li><a href="/groups/">Random group generator</a> – Split the class into 2 to 12 even teams.</li>
         <li><a href="/timer/">Classroom timer</a> – Full-screen countdown for the board.</li>
         <li><a href="/order/">Random order generator</a> – Shuffle the class into a numbered speaking order.</li>
-      </ul>
-    </div>
-    <div class="about-col">
-      <h2>Frequently asked questions</h2>
+        <li><a href="/intervals/">Interval timer</a> – Repeating rounds with carry-over and a running total.</li>
+        </ul>
+        <h2>Embed or link to this tool</h2>
+        <p>Paste this into your class blog, school website or learning platform to embed the tool:</p>
+        <pre><code>&lt;iframe src="https://classroompicker.com/" width="100%" height="640" style="border:0" loading="lazy" title="Random Student Picker – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
+        <p>Or link to it with:</p>
+        <pre><code>&lt;a href="https://classroompicker.com/"&gt;Random Student Picker by Classroom Picker&lt;/a&gt;</code></pre>
+      </div>
+      <div class="about-col">
+        <h2>Frequently asked questions</h2>
       <h3>Is the random student picker really free?</h3>
       <p>Yes. There is no account, no paywall and nothing to install. The whole tool is a single web page that works on any laptop, Chromebook or interactive whiteboard.</p>
       <h3>Does it avoid picking the same student twice?</h3>
@@ -238,18 +277,15 @@
       <p>In your browser's local storage on this device only. Nothing is uploaded, so there is no server holding pupil names. Clearing your browser data removes the list.</p>
       <h3>Can I use it as a random name generator for anything else?</h3>
       <p>Of course. Any list of names works: raffles, chore rotas, choosing who reads next, or picking a team captain. It is a general randomiser that happens to be tuned for teachers.</p>
-      <h2>Embed or link to this tool</h2>
-      <p>Paste this into your class blog, school website or learning platform to embed the tool:</p>
-      <pre><code>&lt;iframe src="https://classroompicker.com/" width="100%" height="640" style="border:0" loading="lazy" title="Random Student Picker – Classroom Picker"&gt;&lt;/iframe&gt;</code></pre>
-      <p>Or link to it with:</p>
-      <pre><code>&lt;a href="https://classroompicker.com/"&gt;Random Student Picker by Classroom Picker&lt;/a&gt;</code></pre>
-    </div>
+      </div>
+      </div>
+    </details>
   </section>
 
   <footer>
     <span>v1.1</span>
     <span>·</span>
-    <span>Space picks · F presents · Esc exits · R starts over</span>
+    <span>Space picks · F presents · Esc exits · R starts over · N next interval</span>
     <span>·</span>
     <a href="/privacy/">Privacy</a>
   </footer>
